@@ -45,7 +45,6 @@ const updateTodo = async (req, res) => {
     // Check if this is a done update
     const { description, done } = req.body;
     const updatedFields = {};
-
     if (description !== undefined) {
       if (description.trim() === "" || description.length > 20) {
         return res
@@ -59,7 +58,7 @@ const updateTodo = async (req, res) => {
     }
 
     if (typeof done !== "undefined") {
-      updatedFields.done = done;
+      updatedFields.done = !done;
     }
     const todo = await Todo.findOneAndUpdate({ _id: taskID }, updatedFields, {
       new: true,
