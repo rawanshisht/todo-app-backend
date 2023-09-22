@@ -43,49 +43,85 @@ const updateTodo = async (req, res) => {
   try {
     const { id: taskID } = req.params;
     // Check if this is a done update
-    if (req.body && typeof req.body.done !== "undefined") {
-      const todo = await Todo.findOneAndUpdate(
-        { _id: taskID },
-        { done: req.body.done },
-        {
-          new: true,
-          runValidators: true,
-        }
-      );
-      if (!todo) {
-        return res.status(404).json({ msg: `No task with id: ${taskID}` });
-      }
-      return res.status(200).json({ todo });
-    } else if (
-      req.body &&
-      req.body.description.length !== 0 &&
-      req.body.description.length <= 20 &&
-      req.body.description.trim() !== ""
-    ) {
-      const todo = await Todo.findOneAndUpdate({ _id: taskID }, req.body, {
-        new: true,
-        runValidators: true,
-      });
+    const { description, done } = req.body;
+    const updatedFields = {};
 
-      if (!todo) {
-        return res.status(404).json({ msg: `No task with id: ${taskID}` });
+    if (description !== undefined) {
+      if (description.trim() === "" || description.length > 20) {
+        return res
+          .status(400)
+          .json({ msg: "Please enter a value between 1 and 20 characters." });
       }
-      return res.status(200).json({ todo });
-    } else if (
-      req.body.description.length === 0 ||
-      req.body.description.length > 20
-    ) {
-      return res
-        .status(400)
-        .json({ msg: `Please enter a value between 1 and 20 characters.` });
-    } else {
-      // If neither description nor status update, return a bad request response
-      return res.status(400).json({ msg: "Invalid update request." });
     }
+
+    if (description && description.length > 0 && description.length <= 20) {
+      updatedFields.description = description;
+    }
+
+    if (typeof done !== "undefined") {
+      updatedFields.done = done;
+    }
+    const todo = await Todo.findOneAndUpdate({ _id: taskID }, updatedFields, {
+      new: true,
+      runValidators: true,
+    });
+    if (!todo) {
+      return res.status(404).json({ msg: `No task with id: ${taskID}` });
+    }
+    return res.status(200).json({ todo });
   } catch (error) {
     res.status(500).json({ msg: error });
   }
 };
+
+// const updateTodo = async (req, res) => {
+//   try {
+//     const { id: taskID } = req.params;
+//     console.log(req.body);
+//     // Check if this is a done update
+//     if (req.body && typeof req.body.done !== "undefined") {
+//       const todo = await Todo.findOneAndUpdate(
+//         { _id: taskID },
+//         { done: req.body.done },
+//         {
+//           new: true,
+//           runValidators: true,
+//         }
+//       );
+//       if (!todo) {
+//         return res.status(404).json({ msg: `No task with id: ${taskID}` });
+//       }
+//       return res.status(200).json({ todo });
+//     } else if (
+//       req.body &&
+//       req.body.description.length !== 0 &&
+//       req.body.description.length <= 20 &&
+//       req.body.description.trim() !== ""
+//     ) {
+//       const todo = await Todo.findOneAndUpdate({ _id: taskID }, req.body, {
+//         new: true,
+//         runValidators: true,
+//       });
+
+//       if (!todo) {
+//         return res.status(404).json({ msg: `No task with id: ${taskID}` });
+//       }
+//       return res.status(200).json({ todo });
+//     } else if (
+//       req.body.description.length === 0 ||
+//       req.body.description.length > 20
+//     ) {
+//       return res
+//         .status(400)
+//         .json({ msg: `Please enter a value between 1 and 20 characters.` });
+//     } else {
+//       // If neither description nor status update, return a bad request response
+//       return res.status(400).json({ msg: "Invalid update request." });
+//     }
+//   } catch (error) {
+//     res.status(500).json({ msg: error });
+//   }
+// };
 
 const deleteTodo = async (req, res) => {
   try {
