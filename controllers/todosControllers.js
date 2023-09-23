@@ -1,4 +1,5 @@
 const Todo = require("../Models/todo");
+const moment = require("moment");
 
 const getAllTodos = async (req, res) => {
   try {
@@ -27,7 +28,8 @@ const addTodo = async (req, res) => {
       req.body.description.length !== 0 &&
       req.body.description.length <= 20
     ) {
-      const todo = await Todo.create(req.body);
+      let obj = { ...req.body, date: moment().format("HH:mm, DD MMMM YYYY") };
+      const todo = await Todo.create(obj);
       return res.status(201).json({ todo });
     } else {
       return res
@@ -59,7 +61,11 @@ const updateTodo = async (req, res) => {
     if (typeof done !== "undefined") {
       updatedFields.done = done;
     }
-    const todo = await Todo.findOneAndUpdate({ _id: taskID }, updatedFields, {
+    let obj = {
+      ...updatedFields,
+      date: moment().format("HH:mm, DD MMMM YYYY"),
+    };
+    const todo = await Todo.findOneAndUpdate({ _id: taskID }, obj, {
       new: true,
       runValidators: true,
     });

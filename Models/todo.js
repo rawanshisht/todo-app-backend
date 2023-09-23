@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const moment = require("moment");
 
 const TodoSchema = new mongoose.Schema({
   description: {
@@ -11,6 +12,9 @@ const TodoSchema = new mongoose.Schema({
   done: {
     type: Boolean,
     default: false,
+  },
+  date: {
+    type: String,
   },
 });
 
